@@ -140,17 +140,16 @@ export default (firebase, settings = {context: '', imagekey: 'images', filekey: 
       })
     },
 
-    getMany: (source, params) => {
-      const resource = [settings.context, source].join('/')
-      let getMany = new Promise((resolve, reject) => {
-        let data = params.ids.map(id => {
-          return database.ref([resource, id].join('/')).once('value').then(function(snapshot) {
-            return snapshot.val()
-          })
-        })
-        resolve(data)
-      })
-      return getMany.then(data => { return { data: data } })
+    getMany: async (source, params) => {
+      const resource = [settings.context, source].join('/');
+      var data = [];
+      for (var i in params.ids) {
+        const id = params.ids[i];
+        let ref = database.ref([resource, id].join('/'));
+        const snapshot = await ref.once('value');
+        data.push(snapshot.val());
+      }
+      return { data: data };
     },
 
     getManyReference: (source, params) => {
